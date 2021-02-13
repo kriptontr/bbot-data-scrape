@@ -1,0 +1,123 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+
+    <title>Charting Library</title>
+
+    <!-- Fix for iOS Safari zooming bug -->
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+    <!-- jQuery is not required to use Charting Library. It is used only for sample datafeed ajax requests. -->
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script>
+        window.jQuery || document.write(
+            '<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"><\/script>')
+    </script>
+    <script type="text/javascript" src="charting_library/charting_library.min.js"></script>
+    <script type="text/javascript" src="charting_library/datafeed/udf/datafeed.js"></script>
+    <style>
+        body{
+            background: #000 !important;
+        }
+        body>div.js-rootresizer__contents>div.layout__area--center>div>div.chart-widget>div.onchart-tv-logo.wrapper.expanded>div {
+            display: none !important;
+            visibility: hidden !important;
+        }
+    </style>
+
+    <script type="text/javascript">
+        function getParameterByName(name) {
+            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                results = regex.exec(location.search);
+            return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
+
+        TradingView.onready(function () {
+            var widget = window.tvWidget = new TradingView.widget({
+                fullscreen: true,
+                symbol: getParameterByName("symbol") || 'BTCTRL',
+                timezone: "Europe/Istanbul",
+                autosize: true,
+                allow_symbol_change: false,
+                interval: '15',
+                auto_save_delay: 1,
+                load_last_chart: true,
+                container_id: "tv_chart_container",
+                datafeed: new Datafeeds.UDFCompatibleDatafeed(
+                    "https://api.ovis.com.tr/public/chartdata"),
+                library_path: "charting_library/",
+                locale: getParameterByName("lang") || 'en',
+                charts_storage_url: 'https://api.ovis.com.tr/public/chart',
+                charts_storage_api_version: "1.1",
+                client_id: 'ovis.com.tr',
+                user_id: getParameterByName("uid") || 'ovis',
+                // gui
+                drawings_access: {
+                    type: 'black',
+                    tools: [{
+                        name: "Regression Trend"
+                    }]
+                },
+                loading_screen: {
+                    backgroundColor: "#000"
+                },
+                toolbar_bg: '#000',
+                custom_css_url: '/charts/dark-theme.css',
+                overrides: {
+                    "volumePaneSize": "large",
+                    "paneProperties.background": "#000",
+                    "paneProperties.vertGridProperties.color": "#1a1a1a",
+                    "paneProperties.horzGridProperties.color": "#1a1a1a",
+                    "paneProperties.crossHairProperties.color": "#989898",
+                    "scalesProperties.backgroundColor": "#000",
+                    "scalesProperties.lineColor": "#1a1a1a",
+                    "scalesProperties.textColor": "#ccc",
+                    "mainSeriesProperties.areaStyle.color1": "#000",
+                    "mainSeriesProperties.areaStyle.color2": "#000",
+                    "mainSeriesProperties.areaStyle.linecolor": "#000",
+                    "mainSeriesProperties.areaStyle.priceSource": "close",
+                    "mainSeriesProperties.lineStyle.color": "#000"
+                },
+                enabled_features: [
+                    "study_templates",
+                    "create_volume_indicator_by_default",
+                    "use_localstorage_for_settings",
+                    "save_chart_properties_to_local_storage",
+                    "adaptive_logo"
+                ],
+                disabled_features: [
+                    "header_symbol_search",
+                    "header_compare",
+                    "header_undo_redo",
+                    "control_bar",
+                    "study_buttons_in_legend",
+                    "symbol_info",
+                    "header_interval_dialog_button",
+                    "header_chart_type",
+                    "show_interval_dialog_on_key_press",
+                    "header_saveload",
+                    "items_favoriting",
+                    "timeframes_toolbar"
+                ]
+            });
+
+            widget.onChartReady(function () {
+                widget.subscribe("onAutoSaveNeeded", function () {
+                    widget.saveChartToServer(function () {}, function () {}, false, {
+                        chartName: getParameterByName("uid") || 'ovis'
+                    });
+                });
+            });
+        });
+    </script>
+
+</head>
+
+<body style="margin:0px; background: #000;">
+    <div style="background: #000;" id="tv_chart_container"></div>
+</body>
+
+</html>
